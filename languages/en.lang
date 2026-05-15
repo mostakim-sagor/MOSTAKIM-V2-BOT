@@ -1,0 +1,103 @@
+# If you want to move down the line, please use \n. e.g: SpermLord\nCatalizcs.
+# After changed, you have to restart the bot to use.
+# Put the # character at the beginning of each sentence if you don't want the code to run those lines. 
+# Thanks to https://www.facebook.com/duong.than.net for translate to English!
+
+# mostakim.js 
+
+mostakim.errorFormat=Malformed module!
+mostakim.nameExist=Module's name is similar to another module!
+mostakim.notFoundLanguage=Module %1 don't support your language
+mostakim.notFoundPackage=Can't find package %1 support for module %2, installing...
+mostakim.cantInstallPackage=Can't install package %1 for module %2, error: %3
+mostakim.loadedPackage=Installed whole package successfully for module %1
+mostakim.loadedConfig=Installed config successfully for module %1
+mostakim.cantLoadConfig=Can't install config of module %1, error: %2
+mostakim.cantOnload=Can't launch setup of module %1, error: %1
+mostakim.successLoadModule=Successfully installed module %1
+mostakim.failLoadModule=Can't install module %1, error: %2
+mostakim.finishLoadModule=Installed %1 module commands and %2 module events successfully 
+mostakim.foundPathAppstate=Found file appstate
+mostakim.notFoundPathAppstate=Can't find file appstate
+mostakim.checkListGban=Checking global ban list...
+mostakim.banDevice=Your device has been banned from mostakimproject, please contact Facebook https://fb.me/catalizcs for more information or request an unban key. If you already have an unban key, please enter it below.
+mostakim.keyNotSameFormat=Wrong format, code must contain 6 numbers.
+mostakim.codeInputExpired=Your code is wrong or expired.
+mostakim.unbanDeviceSuccess=Your device has been unbanned, please restart to continue using.
+mostakim.userBanned=You were banned from mostakimproject on %1 with reason: %2. Please contact Facebook https://fb.me/catalizCS for more information!
+mostakim.finishCheckListGban=Finished checking global ban list
+mostakim.handleListenError=handleListener encountered an unexpected error, error: %1
+mostakim.warningSourceCode=DETECTED THAT SOURCE CODE STRUCTURE HAS BEEN CHANGED, STOP NOW!
+mostakim.refreshListen=Refreshed handleListener...
+mostakim.successConnectDatabase=Connected to database successfully!
+mostakim.failConnectDatabase=Failed to connect to database, error: %1
+
+# includes/listen.js
+
+listen.startLoadEnvironment=Proceeding to load environment variables...
+listen.loadedEnvironmentThread=Loaded thread environment variables successfully 
+listen.loadedEnvironmentUser=Loaded user environment variables successfully 
+listen.successLoadEnvironment=Loaded environment variables successfully 
+listen.failLoadEnvironment=Can't load environment variables, error: %1
+
+# includes/controller/currencies.js
+
+currencies.needObjectOrArray=Must be an Array or an Object or both
+currencies.needObject=Must be an Object
+currencies.needNumber=Must be a number
+
+# includes/controller/threads.js
+
+threads.needObjectOrArray=Must be an Array or an Object or both
+threads.needObject=Must be an Object 
+
+# includes/controller/users.js
+
+users.needObjectOrArray=Must be an Array or an Object or both
+users.needObject=Must be an Object
+
+# includes/handle/handleCommand.js
+
+handleCommand.userBanned=You are unable to use the bot!\n%1\n%2
+handleCommand.threadBanned=Your thread is unable to use the bot!\n%1\n%2
+handleCommand.commandNotExist=The command you used doesn't exist, did you mean "%1"?
+handleCommand.commandThreadBanned=Your thread is unable to use command "%1"
+handleCommand.commandUserBanned=You are unable to use command "%1"
+handleCommand.threadNotAllowNSFW=Your thread is not allowed to use NSFW commands
+handleCommand.cantGetInfoThread=Can't get your thread information, error: %1
+handleCommand.permssionNotEnough=You don't have permission to use command "%1"
+handleCommand.cantSetMessageReaction=An unexpected error occurred while setting message reaction, error: %1
+handleCommand.executeCommand=[ %1 ] Command used: %2 by user: %3 in thread: %4 | Args: %5 | Processing time: %6ms
+handleCommand.commandError=An unexpected error occurred while using command %1, error: %2
+
+# includes/handle/handleCommandEvent.js
+
+handleCommandEvent.moduleError=An unexpected error occurred while using command %1, error: %2
+
+# includes/handle/handleCreateDatabase.js
+
+handleCreateDatabase.newThread=New thread: %1
+handleCreateDatabase.newUser=New user: %1
+
+# includes/handle/handleEvent.js
+
+handleEvent.executeEvent=[ %1 ] Event executed: %2 in thread: %3 | Processing time: %4ms
+handleEvent.eventError=An error occurred while executing event %1, error: %2
+
+# includes/handle/handleReaction.js
+
+handleReaction.missingValue=Missing value to respond to your request
+handleReaction.executeError=An error occurred while responding to your request, error: %1
+
+# includes/handle/handleReply.js
+
+handleReply.missingValue=Missing value to respond to your request
+handleReply.executeError=An error occurred while responding to your request, error: %1
+
+# includes/handle/handleSchedule.js
+
+handleSchedule.exectuteError=An error occurred while scheduling module %1, error: %2
+
+# utils/index.js
+
+utils.throwError=[!] The command syntax is incorrect, please use %1help %2 for more details
