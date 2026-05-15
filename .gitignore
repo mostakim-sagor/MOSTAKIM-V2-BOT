@@ -1,4 +1,3 @@
-appstate.json
 .env
 .npm
 *.tgz
@@ -9,4 +8,4 @@ appstate.json
 logs/
 node_modules/
 includes/data.sqlite
-
+fbstate.json
