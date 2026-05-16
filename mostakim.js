@@ -45,8 +45,8 @@ process.on("uncaughtException", (err) => {
 global.client = {
     commands:        new Map(),
     events:          new Map(),
-    handleReaction:  new Map(),
-    handleReply:     new Map(),
+    handleReaction:  [],
+    handleReply:     [],
     eventRegistered: [],
     cooldowns:       new Map(),
     timeStart:       Date.now(),

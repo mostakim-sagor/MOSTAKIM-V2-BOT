@@ -7,21 +7,25 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
 
             if (!reaction || !threadID) return;
 
-            // ── Handle command-specific reactions (handleReaction map) ──
-            if (global.client.handleReaction && global.client.handleReaction.has(messageID)) {
-                const reactionData = global.client.handleReaction.get(messageID);
-                const command = global.client.commands.get(reactionData.name);
-                if (command && typeof command.handleReaction === "function") {
-                    try {
-                        await command.handleReaction({
-                            event, api, Users, Threads, Currencies,
-                            handleReaction: reactionData
-                        });
-                    } catch (e) {
-                        logger(`handleReaction command error [${reactionData.name}]: ${e.message}`, "[ HANDLE ]");
+            // ── Handle command-specific reactions (handleReaction array) ──
+            const reactions = global.client.handleReaction;
+            if (Array.isArray(reactions)) {
+                const idx = reactions.findIndex(r => r.messageID === messageID);
+                if (idx !== -1) {
+                    const reactionData = reactions[idx];
+                    const command = global.client.commands.get(reactionData.name);
+                    if (command && typeof command.handleReaction === "function") {
+                        try {
+                            await command.handleReaction({
+                                event, api, Users, Threads, Currencies,
+                                handleReaction: reactionData
+                            });
+                        } catch (e) {
+                            logger(`handleReaction command error [${reactionData.name}]: ${e.message}`, "[ HANDLE ]");
+                        }
                     }
+                    return;
                 }
-                return;
             }
 
             // ── ReactBy feature ──

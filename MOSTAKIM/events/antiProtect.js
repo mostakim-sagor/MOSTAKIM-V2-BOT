@@ -103,27 +103,25 @@ module.exports.run = async function ({ api, event }) {
       }
 
       case "log:thread-description": {
-        await api.setThreadDescription(old.description, threadID).catch(() => {});
-
         return api.sendMessage({
-          body: `🚫 Group description change blocked!\n👤 User: @${threadInfo.nicknames?.[senderID] || senderID}\nrestored. to old description.`,
+          body: `🚫 Group description change blocked!\n👤 User: @${threadInfo.nicknames?.[senderID] || senderID}`,
           mentions,
           attachment: fs.createReadStream(warningImage)
         }, threadID);
       }
 
       case "log:thread-emoji": {
-        await api.setThreadEmoji(old.emoji, threadID).catch(() => {});
+        await api.changeThreadEmoji(old.emoji, threadID).catch(() => {});
 
         return api.sendMessage({
-          body: `🚫 Group emoji change blocked!\n👤 User: @${threadInfo.nicknames?.[senderID] || senderID}\nrestored. to old emoji.`,
+          body: `🚫 Group emoji change blocked!\n👤 User: @${threadInfo.nicknames?.[senderID] || senderID}\nRestored to old emoji.`,
           mentions,
           attachment: fs.createReadStream(warningImage)
         }, threadID);
       }
 
       case "log:thread-color": {
-        await api.setThreadColor(old.color, threadID).catch(() => {});
+        await api.changeThreadColor(old.color, threadID).catch(() => {});
 
         return api.sendMessage({
           body: `🚫 Group color/theme change blocked!\n👤 User: @${threadInfo.nicknames?.[senderID] || senderID}\nrestored. to old color/theme.`,

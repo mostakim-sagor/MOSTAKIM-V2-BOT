@@ -46,7 +46,7 @@ module.exports.handleEvent = async function ({ event, api, Users }) {
         const ext = file.url.split(".").pop();
         const filePath = __dirname + `/cache/resend_${count}.${ext}`;
         const fileData = (await axios.get(file.url, { responseType: "arraybuffer" })).data;
-        fs.writeFileSync(filePath, Buffer.from(fileData, "utf-8"));
+        fs.writeFileSync(filePath, Buffer.from(fileData));
         attachmentsList.push(fs.createReadStream(filePath));
       }
 
