@@ -19,6 +19,7 @@
 	"author": "mostakim",
 	"license": "GPL-3.0",
 	"dependencies": {
+		"@distube/ytdl-core": "^4.16.12",
 		"axios": "*",
 		"body-parser": "*",
 		"chalk": "^4.1.2",
