@@ -2,16 +2,22 @@ const schedule = require('node-schedule');
 const fs = require('fs');
 const https = require('https');
 
-// Safe TikTok scraper stub — tiktok-scraper requires libuuid which is unavailable
-// Falls back to loading cached links only; new video fetching is disabled
-let TikTokScraper;
-try {
-    TikTokScraper = require('tiktok-scraper');
-} catch (e) {
-    TikTokScraper = {
-        user: async () => ({ collector: [] })
-    };
-}
+module.exports.config = {
+    name: "mostakimt",
+    version: "1.0.0",
+    hasPermssion: 2,
+    credits: "MOSTAKIM",
+    description: "TikTok auto video sender system",
+    commandCategory: "Admin",
+    usages: "tiktokautosendon | tiktokautosendoff | tiktokautosendstatus",
+    cooldowns: 5
+};
+
+// tiktok-scraper requires libuuid system library which is unavailable in this environment
+// Using safe stub that returns empty results
+const TikTokScraper = {
+    user: async () => ({ collector: [] })
+};
 const chalk = require('chalk');
 
 // ================= CONFIG =================

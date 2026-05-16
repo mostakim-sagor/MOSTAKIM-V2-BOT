@@ -5,7 +5,7 @@ module.exports.config = {
   credits: "MOSTAKIM",
   description: "Ban or unban a user directly, works on reply too",
   commandCategory: "group",
-  usages: `${global.config.PREFIX}ban <UID/@tag>\n${global.config.PREFIX}unban <UID/@tag>`,
+  usages: "ban <UID/@tag> | unban <UID/@tag>",
   cooldowns: 5
 };
 
