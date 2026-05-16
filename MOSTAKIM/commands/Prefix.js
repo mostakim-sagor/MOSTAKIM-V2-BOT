@@ -37,7 +37,7 @@ module.exports.handleEvent = async ({ event, api, Threads }) => {
 
 ➤ 𝗕𝗼𝘁 𝗽𝗿𝗲𝗳𝗶𝘅 : [ ${prefix} ]
 ➤ 𝗕𝗼𝘁 𝗡𝗮𝗺𝗲   : 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓
-➤ 𝗕𝗼𝘁 𝗔𝗱𝗺𝗶𝗻 : 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌
+➤ 𝗕𝗼𝘁 𝗔𝗱𝗺𝗶𝗻 : MD MOSTAKIM ISLAM SAGOR 
 
 『 𝐁𝐎𝐗 𝐈𝐍𝐅𝐎 』
 
@@ -48,7 +48,7 @@ module.exports.handleEvent = async ({ event, api, Threads }) => {
 『 𝐎𝐖𝐍𝐄𝐑 𝐈𝐍𝐅𝐎 』
 
 ➤ 𝗢𝘄𝗻𝗲𝗿 𝗡𝗮𝗺𝗲 : 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌
-➤ 𝗙𝗮𝗰𝗲𝗯𝗼𝗼𝗸    : www.facebook.com/100044713412032
+➤ 𝗙𝗮𝗰𝗲𝗯𝗼𝗼𝗸    : www.facebook.com/100058112936375
 ➤ 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺    : t.me/M0STAKIM10X
 
 🌟━━━━━━━━━━━━━━━━━🌟
