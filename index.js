@@ -11,7 +11,8 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5000;
+const host = '0.0.0.0';
 
 // Serve the index.html file
 app.get('/', function (req, res) {
@@ -19,8 +20,8 @@ app.get('/', function (req, res) {
 });
 
 // Start the server and add error handling
-app.listen(port, () => {
-    logger(`Server is running on port ${port}...`, "[ Starting ]");
+app.listen(port, host, () => {
+    logger(`Server is running on ${host}:${port}...`, "[ Starting ]");
 }).on('error', (err) => {
     if (err.code === 'EACCES') {
         logger(`Permission denied. Cannot bind to port ${port}.`, "[ Error ]");
