@@ -33,11 +33,14 @@ global.config = {
 
 // Path to config used by some commands (e.g. Info.js)
 global.client = {
-    commands:   new Map(),
-    events:     new Map(),
-    timeStart:  Date.now(),
-    api:        null,
-    configPath: CONFIG_PATH
+    commands:        new Map(),
+    events:          new Map(),
+    handleReaction:  new Map(),
+    handleReply:     new Map(),
+    timeStart:       Date.now(),
+    api:             null,
+    configPath:      CONFIG_PATH,
+    mainPath:        __dirname,
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -77,9 +80,14 @@ global.getText = function (category, key, ...args) {
 //  3. GLOBAL DATA STORE
 // ═══════════════════════════════════════════════════════════
 
+const _threadMap = new Map();
+const _userMap   = new Map();
+
 global.data = {
-    threadData:      new Map(),
-    userData:        new Map(),
+    threadInfo:      _threadMap,
+    threadData:      _threadMap,
+    userInfo:        _userMap,
+    userData:        _userMap,
     currenciesData:  new Map(),
     allThreadID:     [],
     allUserID:       [],
@@ -89,6 +97,7 @@ global.data = {
     commandBanned:   new Map(),
     threadBanned:    new Map(),
     userBanned:      new Map(),
+    cooldowns:       new Map(),
 };
 
 // ═══════════════════════════════════════════════════════════
