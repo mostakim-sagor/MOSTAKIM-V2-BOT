@@ -41,6 +41,7 @@
 		"sequelize": "*",
 		"sqlite3": "*",
 		"string-similarity": "*",
+		"tiktok-scraper": "^1.4.36",
 		"totp-generator": "*"
 	}
 }

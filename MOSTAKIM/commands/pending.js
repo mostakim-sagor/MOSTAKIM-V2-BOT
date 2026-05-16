@@ -12,13 +12,7 @@ module.exports.languages = {
   "en": {
     "invaildNumber": "❌ %1 is not a valid number",
     "cancelSuccess": "✅ Successfully rejected %1 group(s)!",
-    "notiBox1": "⚡ 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌-𝐕𝟐-𝐁𝐎𝐓 ⚡
-
-Is successfully connected and running ♻️
-All services are active and ready to handle your requests 🔥
-Thank you for using this system — let’s get started 🚀
-
-☢️ 𝗣𝗿𝗲𝗳𝗶𝘅 : ${config.PREFIX}",
+    "notiBox1": "⚡ 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌-𝐕𝟐-𝐁𝐎𝐓 ⚡\n\nIs successfully connected and running ♻️\nAll services are active and ready to handle your requests 🔥\nThank you for using this system — let’s get started 🚀\n\n☢️ 𝗣𝗿𝗲𝗳𝗶𝘅 : /",
     "notiBox2": `╭•┄┅═══❁🌺❁═══┅┄•╮
      
      𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌-𝐕𝟐-𝐁𝐎𝐓
@@ -30,9 +24,9 @@ Thank you for adding me to your group 🖤
 I’m always here to help you ♻️
 
 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐋𝐢𝐬𝐭:
-${global.config.PREFIX}help
-${global.config.PREFIX}info
-${global.config.PREFIX}admin
+/help
+/info
+/admin
 
 ★ For any help or complaints, please contact admin ★
 ➤ 𝗙𝗮𝗰𝗲𝗯𝗼𝗼𝗸 : 

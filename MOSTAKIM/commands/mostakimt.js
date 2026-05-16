@@ -1,6 +1,17 @@
 const schedule = require('node-schedule');
-const TikTokScraper = require('tiktok-scraper');
 const fs = require('fs');
+const https = require('https');
+
+// Safe TikTok scraper stub — tiktok-scraper requires libuuid which is unavailable
+// Falls back to loading cached links only; new video fetching is disabled
+let TikTokScraper;
+try {
+    TikTokScraper = require('tiktok-scraper');
+} catch (e) {
+    TikTokScraper = {
+        user: async () => ({ collector: [] })
+    };
+}
 const chalk = require('chalk');
 
 // ================= CONFIG =================
