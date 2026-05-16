@@ -25,11 +25,21 @@ global.config = {
     ADMINID:      configJson.adminBot     || [],
     LANGUAGE:     configJson.language     || "en",
     NOPFX:        configJson.noPrefix     || false,
+    allowInbox:   configJson.allowInbox   || false,
     APPSTATEPATH: "appstate.json",
     DATABASE,
     // Keep original config values accessible too
     ...configJson
 };
+
+// Prevent unhandled Promise rejections from crashing the bot process
+process.on("unhandledRejection", (reason) => {
+    const msg = reason instanceof Error ? reason.message : String(reason);
+    logger(`Unhandled rejection: ${msg}`, "[ ERROR ]");
+});
+process.on("uncaughtException", (err) => {
+    logger(`Uncaught exception: ${err.message}`, "[ ERROR ]");
+});
 
 // Path to config used by some commands (e.g. Info.js)
 global.client = {
@@ -37,6 +47,8 @@ global.client = {
     events:          new Map(),
     handleReaction:  new Map(),
     handleReply:     new Map(),
+    eventRegistered: [],
+    cooldowns:       new Map(),
     timeStart:       Date.now(),
     api:             null,
     configPath:      CONFIG_PATH,
@@ -145,7 +157,12 @@ function loadModules() {
                 }
             }
 
-            global.client.commands.set(mod.config.name.toLowerCase(), mod);
+            const cmdName = mod.config.name.toLowerCase();
+            global.client.commands.set(cmdName, mod);
+            // Register commands that have handleEvent into eventRegistered
+            if (typeof mod.handleEvent === "function") {
+                global.client.eventRegistered.push(cmdName);
+            }
             cmdCount++;
         } catch (e) {
             logger(`Cannot load command ${file}: ${e.message}`, "[ LOADER ]");
@@ -296,7 +313,12 @@ async function start() {
                     logger(`Listen error: ${err.error || err.message || err}`, "[ LISTEN ]");
                     return;
                 }
-                try { listenHandler(event); } catch (e) {
+                try {
+                    const result = listenHandler(event);
+                    if (result && typeof result.catch === "function") {
+                        result.catch(e => logger(`Handler async error: ${e.message}`, "[ HANDLE ]"));
+                    }
+                } catch (e) {
                     logger(`Handler error: ${e.message}`, "[ HANDLE ]");
                 }
             });
