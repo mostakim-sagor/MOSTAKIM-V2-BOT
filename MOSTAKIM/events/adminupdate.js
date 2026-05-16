@@ -45,11 +45,11 @@ try {
         }  
 
         case "log:thread-icon": {  
-        	let preIcon = JSON.parse(fs.readFileSync(iconPath));  
-        	dataThread.threadIcon = event.logMessageData.thread_icon || "👍";  
-            if (global.configModule[this.config.name].sendNoti) api.sendMessage(`» [ GROUP UPDATE ] y.replace("emoji", "icon")}\n» Original icon: ${preIcon[threadID] || "unknown"}`, threadID, async (error, info) => {  
-            	preIcon[threadID] = dataThread.threadIcon;  
-            	fs.writeFileSync(iconPath, JSON.stringify(preIcon));  
+                let preIcon = JSON.parse(fs.readFileSync(iconPath));  
+                dataThread.threadIcon = event.logMessageData.thread_icon || "👍";  
+            if (global.configModule[this.config.name].sendNoti) api.sendMessage(`» [ GROUP UPDATE ] ${event.logMessageBody ? event.logMessageBody.replace("emoji", "icon") : "icon updated"}\n» Original icon: ${preIcon[threadID] || "unknown"}`, threadID, async (error, info) => {  
+                preIcon[threadID] = dataThread.threadIcon;  
+                fs.writeFileSync(iconPath, JSON.stringify(preIcon));  
                 if (global.configModule[this.config.name].autoUnsend) {  
                     await new Promise(resolve => setTimeout(resolve, global.configModule[this.config.name].timeToUnsend * 1000));  
                     return api.unsendMessage(info.messageID);  
@@ -75,7 +75,7 @@ try {
     break;  
         }  
         case "log:thread-color": {  
-        	dataThread.threadColor = event.logMessageData.thread_color || "🌤";  
+                dataThread.threadColor = event.logMessageData.thread_color || "🌤";  
             if (global.configModule[this.config.name].sendNoti) api.sendMessage(`» [ GROUP UPDATE ]\n» ${event.logMessageBody.replace("Theme", "color")}`, threadID, async (error, info) => {  
                 if (global.configModule[this.config.name].autoUnsend) {  
                     await new Promise(resolve => setTimeout(resolve, global.configModule[this.config.name].timeToUnsend * 1000));  

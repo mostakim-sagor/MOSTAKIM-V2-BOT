@@ -30,7 +30,7 @@ module.exports.run = async function({ api, event, Users, Threads }) {
 ✦─────𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓────✦\n
 ››  ${name},  \n›› fb.com/${uid}`;
 
-  const path = join(__dirname, "mostakim", "leaveGif");
+  const path = join(__dirname, "cache", "leaveGif");
   const gifPath = join(path, "leave.gif");
 
   if (!existsSync(path)) mkdirSync(path, { recursive: true });

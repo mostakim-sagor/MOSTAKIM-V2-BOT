@@ -65,7 +65,7 @@ function startBot(message) {
 //========= Check update from Github =========//
 ////////////////////////////////////////////////
 
-axios.get("https://raw.githubusercontent.com/mostakim-sagor /MOSTAKIM-V2-BOT/main/package.json")
+axios.get("https://raw.githubusercontent.com/mostakim-sagor/MOSTAKIM-V2-BOT/main/package.json")
     .then((res) => {
         logger(res.data.name, "[ NAME ]");
         logger(`Version: ${res.data.version}`, "[ VERSION ]");
