@@ -1,11 +1,32 @@
-.env
+# Dependencies
+node_modules/
 .npm
 *.tgz
+
+# Environment & Secrets
+.env
+.env.*
+
+# Facebook Session - NEVER push this!
+appstate.json
+fbstate.json
+
+# Database files
+*.db
+*.sqlite
+includes/data.sqlite
+
+# Media files
 *.mp3
 *.mp4
 *.png
 *.gif
+
+# Logs
 logs/
-node_modules/
-includes/data.sqlite
-fbstate.json
+
+# Replit-specific files
+.replit
+replit.nix
+.local/
+.upm/
