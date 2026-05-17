@@ -2,7 +2,7 @@ module.exports.config = {
 	name: "config",
 	version: "1.0.0",
 	hasPermssion: 2,
-	credits: "𝐂𝐘𝐁𝐄𝐑 ☢️_𖣘 -𝐁𝐎𝐓 ⚠️ 𝑻𝑬𝑨𝑴_ ☢️",
+	credits: "MOSTAKIM",
 	description: "config bot!",
 	commandCategory: "admin",
 	cooldowns: 5
@@ -816,7 +816,7 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
 module.exports.run = async ({ event, api }) => {
   const { threadID, messageID, senderID } = event;
   
-  api.sendMessage("⚙️⚙️─꯭─⃝‌‌𝐒𝐡𝐚𝐡𝐚𝐝𝐚𝐭 𝐂𝐡𝐚𝐭 𝐁𝐨𝐭 Command List ⚙️⚙️"
+  api.sendMessage("⚙️⚙️ 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓 Command List ⚙️⚙️"
      + "\n[01] Edit bot bio"
      + "\n[02] Edit bot nicknames"
      + "\n[03] View pending messages"
@@ -866,4 +866,3 @@ function getGUID() {
     return r;
 }
 getGUID()
-////muhahhahahaha encode cái dmm
