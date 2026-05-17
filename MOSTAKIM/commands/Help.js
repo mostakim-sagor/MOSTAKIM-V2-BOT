@@ -97,8 +97,8 @@ module.exports.run = function ({ api, event, args, getText }) {
 ${list}
 ┣━━━━━━━━━━━━━━━━┫
 ┃ ⚙ Prefix: ${prefix}
-┃ 🤖 Bot: ${global.config.BOTNAME || "MOSTAKIM-V2-BOT"}
-┃ 👑 Owner: MOSTAKIM ISLAM SAGOR
+┃ 🤖 Bot: ${global.config.BOTNAME || "𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓"}
+┃ 👑 Owner: 𝐌𝐃 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐈𝐒𝐋𝐀𝐌 𝐒𝐀𝐆𝐎𝐑
 ╰━━━━━━━━━━━━━━━━╯`;
 
     return api.sendMessage(text, threadID, messageID);
