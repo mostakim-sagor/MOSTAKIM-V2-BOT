@@ -32,14 +32,14 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
             const reactBy = (global.config && global.config.reactBy) ? global.config.reactBy : {};
             if (Object.keys(reactBy).length === 0) return;
 
-            const targetID = messageAuthorID;
+            const targetID = String(messageAuthorID || "");
             if (!targetID) return;
 
-            const botID = api.getCurrentUserID();
+            const botID = String(api.getCurrentUserID() || "");
 
             // Don't act on reactions to bot's own messages or self-reactions
             if (targetID === botID) return;
-            if (userID === targetID) return;
+            if (String(userID) === targetID) return;
 
             // Check if reactor is admin
             let adminIDs = [];
