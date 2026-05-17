@@ -2,7 +2,7 @@ module.exports.config = {
  name: "antijoin",
  eventType: ["log:subscribe"],
  version: "1.0.0",
- credits: "𝗜𝘀𝗹𝗮𝗺𝗶𝗰𝗸 𝗰𝗵𝗮𝘁 𝗯𝗼𝘁",
+ credits: "MOSTAKIM",
  description: "Welcome new members to the group"
 };
 
@@ -22,6 +22,6 @@ module.exports.run = async function ({ event, api, Threads, Users }) {
                               global.data.threadData.set(event.threadID, data);
                     })
                         }
-        return api.sendMessage(`» Your team now has Anti Join mode turned on, please turn it off before adding a new 👻 member`, event.threadID);
+        return api.sendMessage(`» Your team now has Anti Join mode turned on, please turn it off before adding a new 🫡 member`, event.threadID);
  }
 }
