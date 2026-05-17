@@ -25,7 +25,7 @@ module.exports.languages = {
 ┣━━━━━━━━━━━━━━━━┫
 ┃ ⚙ Prefix: %8
 ┃ 🤖 Bot Name: %9
-┃ 👑 Owner: MOSTAKIM ISLAM SAGOR
+┃ 👑 Owner: 𝐌𝐃 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐈𝐒𝐋𝐀𝐌 𝐒𝐀𝐆𝐎𝐑
 ╰━━━━━━━━━━━━━━━━╯`
     }
 };
