@@ -16,8 +16,9 @@ module.exports.handleEvent = async ({ event, api, Threads }) => {
   var dataThread = await Threads.getData(threadID);
   var data = dataThread.data || {};
   const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-  const prefix = threadSetting.PREFIX || global.config.PREFIX;
-  const groupName = dataThread.threadInfo?.threadName || "Unnamed Group";
+  const globalPrefix = global.config.PREFIX;
+  const threadPrefix = threadSetting.PREFIX || global.config.PREFIX;
+  const botName = global.config.BOTNAME || "MOSTAKIM V2 BOT";
 
   const triggerWords = [
     "prefix", "Prefix", "bot", "bot prefix", "what is the prefix", "bot name",
@@ -29,31 +30,14 @@ module.exports.handleEvent = async ({ event, api, Threads }) => {
 
   let lowerBody = body.toLowerCase();
   if (triggerWords.includes(lowerBody)) {
+    const senderInfo = await api.getUserInfo(event.senderID);
+    const userName = senderInfo?.[event.senderID]?.name || "Friend";
+
     return api.sendMessage(
-`🌟━━━━━━━━━━━━━━━━━🌟
-　　　『 𝐏𝐑𝐄𝐅𝐈𝐗 𝐈𝐍𝐅𝐎𝐑𝐌𝐀𝐓𝐈𝐎𝐍 』
-🌟━━━━━━━━━━━━━━━━━🌟
-『 𝐁𝐎𝐓 𝐈𝐍𝐅𝐎 』
-
-➤ 𝗕𝗼𝘁 𝗽𝗿𝗲𝗳𝗶𝘅 : [ ${prefix} ]
-➤ 𝗕𝗼𝘁 𝗡𝗮𝗺𝗲   : 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓
-➤ 𝗕𝗼𝘁 𝗔𝗱𝗺𝗶𝗻 : MD MOSTAKIM ISLAM SAGOR 
-
-『 𝐁𝐎𝐗 𝐈𝐍𝐅𝐎 』
-
-➤ 𝗕𝗼𝘅 𝗣𝗿𝗲𝗳𝗶𝘅 : ${prefix}
-➤ 𝗕𝗼𝘅 𝗡𝗮𝗺𝗲   : ${groupName}
-➤ 𝗕𝗼𝘅 𝗧𝗜𝗗     : ${threadID}
-
-『 𝐎𝐖𝐍𝐄𝐑 𝐈𝐍𝐅𝐎 』
-
-➤ 𝗢𝘄𝗻𝗲𝗿 𝗡𝗮𝗺𝗲 : 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌
-➤ 𝗙𝗮𝗰𝗲𝗯𝗼𝗼𝗸    : www.facebook.com/100058112936375
-➤ 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺    : t.me/M0STAKIM10X
-
-🌟━━━━━━━━━━━━━━━━━🌟
-　　　　𝗧𝗵𝗮𝗻𝗸 𝗬𝗼𝘂 𝗙𝗼𝗿 𝗨𝘀𝗶𝗻𝗴!
-🌟━━━━━━━━━━━━━━━━━🌟`,
+`👋 Hey ${userName}, did you ask for my prefix?
+➥ 🌐 Global: ${globalPrefix}
+➥ 💬 This Chat: ${threadPrefix}
+I'm ${botName} at your service 🫡`,
       threadID,
       null
     );
@@ -61,5 +45,5 @@ module.exports.handleEvent = async ({ event, api, Threads }) => {
 };
 
 module.exports.run = async ({ event, api }) => {
-  return api.sendMessage("Type 'prefix' or similar to get the bot info.", event.threadID);
+  return api.sendMessage("Type 'prefix' to get the bot info.", event.threadID);
 };
