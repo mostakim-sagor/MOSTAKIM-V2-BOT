@@ -2,8 +2,8 @@ module.exports.config = {
   name: "leave",
   eventType: ["log:unsubscribe"],
   version: "1.0.0",
-  credits: "MOSTAKIM",  //please don't change credit
-  description: "Thông báo bot hoặc người rời khỏi nhóm",
+  credits: "MOSTAKIM", // please don't change credit
+  description: "Notify when someone leaves the group",
   dependencies: {
     "fs-extra": "",
     "path": ""
@@ -22,21 +22,38 @@ module.exports.run = async function({ api, event, Users, Threads }) {
   const name = global.data.userName.get(uid) || await Users.getNameUser(uid);
 
   const type = (event.author == uid)
-    ? ` তোর সাহস কম না  গ্রুপের এডমিনের পারমিশন ছাড়া তুই লিভ  নিস!😠\n
-✦─────𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓────✦\n
-››  ${name},\n›› fb.com/${uid}`
-    : `তোমার এই গ্রুপে থাকার কোনো যোগ্যাতা নেই ছাগল😡\n
-তাই তোমাকে লাথি মেরে গ্রুপ থেকে বের করে দেওয়া হলো🤪 \nWELLCOME REMOVE🤧\n
-✦─────𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓────✦\n
-››  ${name},  \n›› fb.com/${uid}`;
+    ? `╭─❍「 𝐌𝐄𝐌𝐁𝐄𝐑 𝐋𝐄𝐅𝐓 」
+│
+├ ✦ ${name} left without permission!
+│
+├ ✦ Profile:
+├ ✦ fb.com/${uid}
+╰───────────────⭓`
+    : `╭─❍「 𝐌𝐄𝐌𝐁𝐄𝐑 𝐑𝐄𝐌𝐎𝐕𝐄𝐃 」
+│
+├ ✦ ${name} was kicked from the group ...
+│
+├ ✦ Profile:
+├ ✦ fb.com/${uid}
+╰───────────────⭓`;
 
-  const path = join(__dirname, "cache", "leaveGif");
+  const path = join(__dirname, "mostakim", "leaveGif");
   const gifPath = join(path, "leave.gif");
 
   if (!existsSync(path)) mkdirSync(path, { recursive: true });
 
   let msg = (typeof data.customLeave == "undefined")
-    ? "ইস {name} {type} "
+    ? `╔══════════════════════╗
+║   👋  𝐆𝐎𝐎𝐃𝐁𝐘𝐄 𝐌𝐄𝐒𝐒𝐀𝐆𝐄   ║
+╚══════════════════════╝
+
+{name} was
+
+{type} from the group ...
+
+━━━━━━━━━━━━━━━━━━━━━━━
+✦─── 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓 ───✦
+━━━━━━━━━━━━━━━━━━━━━━━`
     : data.customLeave;
 
   msg = msg.replace(/\{name}/g, name).replace(/\{type}/g, type);
