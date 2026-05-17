@@ -20,12 +20,22 @@ module.exports.run = async ({ api, event, args }) => {
     return api.sendMessage("❌ তুমি এই command ব্যবহার করার অনুমতি রাখো না!", threadID, messageID);
   }
 
-  const command = args.join(" ").trim();
+  let command = args.join(" ").trim();
   if (!command) {
     return api.sendMessage(
-      `🖥️ 𝗦𝗛𝗘𝗟𝗟 𝗖𝗢𝗠𝗠𝗔𝗡𝗗\n\n📌 Usage: /shell <command>\n\n🔹 Example:\n/shell ls -la\n/shell node -v\n/shell cat package.json\n/shell ps aux`,
+      `🖥️ 𝗦𝗛𝗘𝗟𝗟 𝗖𝗢𝗠𝗠𝗔𝗡𝗗\n\n📌 Usage: /shell <command>\n\n🔹 Example:\n/shell ls\n/shell ls MOSTAKIM/commands\n/shell node -v\n/shell cat config.json\n/shell ps aux`,
       threadID, messageID
     );
+  }
+
+  // Special: "ls" alone → full project tree (exclude noisy folders)
+  if (command === "ls") {
+    command = `find . -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.cache/*" -not -path "*/.local/*" -not -path "*/.pythonlibs/*" -not -path "*/.agents/*" | sort`;
+  }
+  // Special: "ls <path>" → ls -la on that path
+  else if (/^ls\s+/.test(command) && !/^ls\s+-/.test(command)) {
+    const target = command.slice(3).trim();
+    command = `ls -la "${target}" 2>&1 || find "${target}" | sort`;
   }
 
   // Block dangerous commands
