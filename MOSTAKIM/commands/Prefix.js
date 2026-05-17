@@ -44,6 +44,17 @@ I'm ${botName} at your service 🫡`,
   }
 };
 
-module.exports.run = async ({ event, api }) => {
-  return api.sendMessage("Type 'prefix' to get the bot info.", event.threadID);
+module.exports.run = async ({ event, api, Threads }) => {
+  const { threadID } = event;
+  const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
+  const globalPrefix = global.config.PREFIX;
+  const threadPrefix = threadSetting.PREFIX || global.config.PREFIX;
+  const botName = global.config.BOTNAME || "MOSTAKIM V2 BOT";
+  return api.sendMessage(
+`🤖 ${botName}
+➥ 🌐 Global Prefix: ${globalPrefix}
+➥ 💬 This Chat Prefix: ${threadPrefix}
+Use ${threadPrefix}help to see all commands!`,
+    threadID
+  );
 };

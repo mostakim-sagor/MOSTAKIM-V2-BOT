@@ -45,7 +45,13 @@ module.exports = function({ api, models }) {
                         ].map(String);
                         const senderID = String(event.senderID || "");
                         const bodyTrim = event.body.trim();
-                        if (adminIds.includes(senderID) && !bodyTrim.startsWith(prefix)) {
+                        // Only prepend prefix if body starts with a letter/number
+                        // (skip symbol-only input like "/" "." "!" so handleEvent still works)
+                        if (
+                                adminIds.includes(senderID) &&
+                                !bodyTrim.startsWith(prefix) &&
+                                /^[\p{L}\p{N}]/u.test(bodyTrim)
+                        ) {
                                 evt = { ...event, body: prefix + bodyTrim };
                         }
                 }

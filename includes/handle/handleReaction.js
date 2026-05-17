@@ -5,6 +5,9 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
         try {
             const { threadID, messageID, reaction, userID, senderID } = event;
 
+            // Debug log: always print reaction events so we can see them in logs
+            logger(`[reactBy] reaction="${reaction}" userID=${userID} senderID=${senderID} threadID=${threadID}`, "[ REACTION ]");
+
             if (!reaction || !threadID) return;
 
             // ── Handle command-specific reactions (handleReaction array) ──
