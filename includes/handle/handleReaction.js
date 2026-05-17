@@ -60,10 +60,15 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
             if (!isAdmin) return;
 
             // Match reaction emoji to action
+            // Normalize: strip variation selectors (U+FE0F, U+FE0E) so
+            // "⚠️" in config matches "⚠" sent by Facebook (and vice versa)
+            const normalizeEmoji = (s) => (s || "").replace(/\uFE0F|\uFE0E/g, "").trim();
+            const normalizedReaction = normalizeEmoji(reaction);
+
             let matchedAction = null;
             for (const [action, emojis] of Object.entries(reactBy)) {
                 if (!Array.isArray(emojis)) continue;
-                if (emojis.includes(reaction)) {
+                if (emojis.some(e => normalizeEmoji(e) === normalizedReaction)) {
                     matchedAction = action;
                     break;
                 }
