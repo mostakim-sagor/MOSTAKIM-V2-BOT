@@ -3,7 +3,7 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
 
     return async function ({ event }) {
         try {
-            const { threadID, messageID, reaction, userID, messageAuthorID } = event;
+            const { threadID, messageID, reaction, userID, senderID } = event;
 
             if (!reaction || !threadID) return;
 
@@ -32,30 +32,34 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
             const reactBy = (global.config && global.config.reactBy) ? global.config.reactBy : {};
             if (Object.keys(reactBy).length === 0) return;
 
-            const targetID = String(messageAuthorID || "");
+            // senderID = who sent the original message (the target of the action)
+            // userID   = who reacted (must be admin to trigger an action)
+            const targetID = String(senderID || "");
             if (!targetID) return;
 
             const botID = String(api.getCurrentUserID() || "");
+            const reactorID = String(userID || "");
 
-            // Don't act on reactions to bot's own messages or self-reactions
+            // Don't act on reactions to bot's own messages
             if (targetID === botID) return;
-            if (String(userID) === targetID) return;
+            // Don't act when someone reacts to their own message
+            if (reactorID === targetID) return;
 
-            // Check if reactor is admin
+            // Check if reactor is group admin or bot admin
             let adminIDs = [];
             try {
                 const threadInfo = await api.getThreadInfo(threadID);
                 adminIDs = (threadInfo.adminIDs || []).map(i => String(i.id));
             } catch (e) {}
 
-            const adminBot = global.config.ADMINBOT || global.config.adminBot || [];
-            const isGroupAdmin = adminIDs.includes(String(userID));
-            const isBotAdmin = adminBot.map(String).includes(String(userID));
+            const adminBot = (global.config.ADMINBOT || global.config.adminBot || []).map(String);
+            const isGroupAdmin = adminIDs.includes(reactorID);
+            const isBotAdmin   = adminBot.includes(reactorID);
             const isAdmin = isGroupAdmin || isBotAdmin;
 
             if (!isAdmin) return;
 
-            // Match reaction to action
+            // Match reaction emoji to action
             let matchedAction = null;
             for (const [action, emojis] of Object.entries(reactBy)) {
                 if (!Array.isArray(emojis)) continue;
@@ -67,8 +71,8 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
 
             if (!matchedAction) return;
 
-            const targetName = global.data.userName.get(String(targetID))
-                || await Users.getNameUser(targetID).catch(() => String(targetID));
+            const targetName = (global.data && global.data.userName && global.data.userName.get(targetID))
+                || await Users.getNameUser(targetID).catch(() => targetID);
 
             switch (matchedAction) {
 
@@ -92,11 +96,7 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
                 }
 
                 case "warn": {
-                    try {
-                        api.sendMessage(`⚠️ সতর্কবার্তা!\n👤 ${targetName} (${targetID})\nএই আচরণ আর করবেন না।`, threadID);
-                    } catch (e) {
-                        logger(`warn reaction error: ${e.message}`, "[ REACT ]");
-                    }
+                    api.sendMessage(`⚠️ সতর্কবার্তা!\n👤 ${targetName} (${targetID})\nএই আচরণ আর করবেন না।`, threadID);
                     break;
                 }
 
@@ -104,9 +104,9 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
                     try {
                         const userData = await Users.getData(targetID).catch(() => null);
                         let data = (userData && userData.data) ? userData.data : {};
-                        data.muted = true;
-                        data.mutedBy = String(userID);
-                        data.mutedAt = new Date().toLocaleString("en-GB", { timeZone: "Asia/Dhaka" });
+                        data.muted    = true;
+                        data.mutedBy  = reactorID;
+                        data.mutedAt  = new Date().toLocaleString("en-GB", { timeZone: "Asia/Dhaka" });
                         await Users.setData(targetID, { data });
                         api.sendMessage(`🔇 ${targetName} কে মিউট করা হয়েছে!`, threadID);
                     } catch (e) {
@@ -119,14 +119,16 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
                     try {
                         const userData = await Users.getData(targetID).catch(() => null);
                         let data = (userData && userData.data) ? userData.data : {};
-                        data.banned = true;
-                        data.bannedBy = String(userID);
+                        data.banned   = true;
+                        data.bannedBy = reactorID;
                         data.bannedAt = new Date().toLocaleString("en-GB", { timeZone: "Asia/Dhaka" });
                         await Users.setData(targetID, { data });
-                        global.data.userBanned.set(String(targetID), {
-                            reason: "Reaction ban",
-                            dateAdded: new Date().toLocaleString("en-GB", { timeZone: "Asia/Dhaka" })
-                        });
+                        if (global.data && global.data.userBanned) {
+                            global.data.userBanned.set(targetID, {
+                                reason: "Reaction ban",
+                                dateAdded: data.bannedAt
+                            });
+                        }
                         api.sendMessage(`🚫 ${targetName} (${targetID}) কে ব্যান করা হয়েছে!`, threadID);
                     } catch (e) {
                         api.sendMessage(`❌ Ban করতে পারিনি!\n${e.message}`, threadID);

@@ -1,27 +1,20 @@
-const fs = require("fs-extra");
-const request = require("request");
-const path = require("path");
-
 module.exports.config = {
     name: "help",
-    version: "2.0.0",
+    version: "3.0.0",
     hasPermssion: 0,
     credits: "MOSTAKIM ISLAM SAGOR",
-    description: "Shows all commands with details",
+    description: "Shows all commands",
     commandCategory: "system",
-    usages: "[command name/page number]",
-    cooldowns: 5,
-    envConfig: {
-        autoUnsend: true,
-        delayUnsend: 20
-    }
+    usages: "[command name]",
+    cooldowns: 5
 };
 
 module.exports.languages = {
     "en": {
-        "moduleInfo": `╭━━━━━━━━━━━━━━━━╮
+        "moduleInfo":
+`╭━━━━━━━━━━━━━━━━╮
 ┃ ✨ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐈𝐍𝐅𝐎 ✨
-┣━━━━━━━━━━━┫
+┣━━━━━━━━━━━━━━━━┫
 ┃ 🔖 Name: %1
 ┃ 📄 Usage: %2
 ┃ 📜 Description: %3
@@ -33,121 +26,80 @@ module.exports.languages = {
 ┃ ⚙ Prefix: %8
 ┃ 🤖 Bot Name: %9
 ┃ 👑 Owner: MOSTAKIM ISLAM SAGOR
-╰━━━━━━━━━━━━━━━━╯`,
-        "helpList": "[ There are %1 commands. Use: \"%2help commandName\" to view more. ]",
-        "user": "User",
-        "adminGroup": "Admin Group",
-        "adminBot": "Admin Bot"
+╰━━━━━━━━━━━━━━━━╯`
     }
 };
-
-// 🔹 এখানে আপনার ফটো Imgur লিংক করে বসাবেন ✅
-const helpImages = [
-    "https://i.imgur.com/TNPPtjT.jpeg",
-];
-
-
-function downloadImages(callback) {
-    const randomUrl = helpImages[Math.floor(Math.random() * helpImages.length)];
-    const filePath = path.join(__dirname, "cache", "help_random.jpg");
-
-    request(randomUrl)
-        .pipe(fs.createWriteStream(filePath))
-        .on("close", () => callback([filePath]));
-}
 
 module.exports.handleEvent = function ({ api, event, getText }) {
     const { commands } = global.client;
     const { threadID, messageID, body } = event;
 
-    if (!body || typeof body === "undefined" || body.indexOf("help") != 0) return;  
-    const splitBody = body.slice(body.indexOf("help")).trim().split(/\s+/);  
-    if (splitBody.length < 2 || !commands.has(splitBody[1].toLowerCase())) return;  
+    if (!body || body.indexOf("help") !== 0) return;
+    const parts = body.slice(body.indexOf("help")).trim().split(/\s+/);
+    if (parts.length < 2 || !commands.has(parts[1].toLowerCase())) return;
 
-    const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};  
-    const command = commands.get(splitBody[1].toLowerCase());  
-    const prefix = threadSetting.PREFIX || global.config.PREFIX;  
+    const threadSetting = (global.data && global.data.threadData && global.data.threadData.get(parseInt(threadID))) || {};
+    const prefix  = threadSetting.PREFIX || global.config.PREFIX;
+    const command = commands.get(parts[1].toLowerCase());
 
-    const detail = getText("moduleInfo",  
-        command.config.name,  
-        command.config.usages || "Not Provided",  
-        command.config.description || "Not Provided",  
-        command.config.hasPermssion,  
-        command.config.credits || "Unknown",  
-        command.config.commandCategory || "Unknown",  
-        command.config.cooldowns || 0,  
-        prefix,  
-        global.config.BOTNAME || "MOSTAKIM-V2-BOT"  
-    );  
+    const detail = getText("moduleInfo",
+        command.config.name,
+        command.config.usages        || "Not Provided",
+        command.config.description   || "Not Provided",
+        command.config.hasPermssion,
+        command.config.credits       || "Unknown",
+        command.config.commandCategory || "Unknown",
+        command.config.cooldowns     || 0,
+        prefix,
+        global.config.BOTNAME        || "MOSTAKIM-V2-BOT"
+    );
 
-    downloadImages(files => {  
-        const attachments = files.map(f => fs.createReadStream(f));  
-        api.sendMessage({ body: detail, attachment: attachments }, threadID, () => {  
-            files.forEach(f => fs.unlinkSync(f));  
-        }, messageID);  
-    });
+    return api.sendMessage(detail, threadID, messageID);
 };
 
 module.exports.run = function ({ api, event, args, getText }) {
     const { commands } = global.client;
     const { threadID, messageID } = event;
 
-    const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};  
-    const prefix = threadSetting.PREFIX || global.config.PREFIX;  
+    const threadSetting = (global.data && global.data.threadData && global.data.threadData.get(parseInt(threadID))) || {};
+    const prefix = threadSetting.PREFIX || global.config.PREFIX;
 
-    if (args[0] && commands.has(args[0].toLowerCase())) {  
-        const command = commands.get(args[0].toLowerCase());  
+    // /help <commandName>  →  show single command info
+    if (args[0] && commands.has(args[0].toLowerCase())) {
+        const command = commands.get(args[0].toLowerCase());
+        const detail = getText("moduleInfo",
+            command.config.name,
+            command.config.usages        || "Not Provided",
+            command.config.description   || "Not Provided",
+            command.config.hasPermssion,
+            command.config.credits       || "Unknown",
+            command.config.commandCategory || "Unknown",
+            command.config.cooldowns     || 0,
+            prefix,
+            global.config.BOTNAME        || "MOSTAKIM-V2-BOT"
+        );
+        return api.sendMessage(detail, threadID, messageID);
+    }
 
-        const detailText = getText("moduleInfo",  
-            command.config.name,  
-            command.config.usages || "Not Provided",  
-            command.config.description || "Not Provided",  
-            command.config.hasPermssion,  
-            command.config.credits || "Unknown",  
-            command.config.commandCategory || "Unknown",  
-            command.config.cooldowns || 0,  
-            prefix,  
-            global.config.BOTNAME || "MOSTAKIM-V2-BOT"  
-        );  
+    // /help  →  show ALL commands at once (no pagination)
+    const allCmds = Array.from(commands.keys())
+        .filter(n => n && n.trim() !== "")
+        .sort();
 
-        downloadImages(files => {  
-            const attachments = files.map(f => fs.createReadStream(f));  
-            api.sendMessage({ body: detailText, attachment: attachments }, threadID, () => {  
-                files.forEach(f => fs.unlinkSync(f));  
-            }, messageID);  
-        });  
-        return;  
-    }  
+    const list = allCmds.map((n, i) => `┃ ${String(i + 1).padStart(3, " ")}. ✪ ${n}`).join("\n");
 
-    const arrayInfo = Array.from(commands.keys())
-        .filter(cmdName => cmdName && cmdName.trim() !== "")
-        .sort();  
-
-    const page = Math.max(parseInt(args[0]) || 1, 1);  
-    const numberOfOnePage = 20;  
-    const totalPages = Math.ceil(arrayInfo.length / numberOfOnePage);  
-    const start = numberOfOnePage * (page - 1);  
-    const helpView = arrayInfo.slice(start, start + numberOfOnePage);  
-
-    let msg = helpView.map(cmdName => `┃ ✪ ${cmdName}`).join("\n");
-
-    const text = `╭━━━━━━━━━━━━━━━━╮
+    const text =
+`╭━━━━━━━━━━━━━━━━╮
 ┃ 📜 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐋𝐈𝐒𝐓 📜
-┣━━━━━━━━━━━━━━━┫
-┃ 📄 Page: ${page}/${totalPages}
-┃ 🧮 Total: ${arrayInfo.length}
 ┣━━━━━━━━━━━━━━━━┫
-${msg}
+┃ 🧮 Total: ${allCmds.length} commands
+┣━━━━━━━━━━━━━━━━┫
+${list}
 ┣━━━━━━━━━━━━━━━━┫
 ┃ ⚙ Prefix: ${prefix}
-┃ 🤖 Bot Name: ${global.config.BOTNAME || "MOSTAKIM-V2-BOT"}
+┃ 🤖 Bot: ${global.config.BOTNAME || "MOSTAKIM-V2-BOT"}
 ┃ 👑 Owner: MOSTAKIM ISLAM SAGOR
 ╰━━━━━━━━━━━━━━━━╯`;
 
-    downloadImages(files => {  
-        const attachments = files.map(f => fs.createReadStream(f));  
-        api.sendMessage({ body: text, attachment: attachments }, threadID, () => {  
-            files.forEach(f => fs.unlinkSync(f));  
-        }, messageID);  
-    });  
+    return api.sendMessage(text, threadID, messageID);
 };

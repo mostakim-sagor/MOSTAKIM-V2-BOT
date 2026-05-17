@@ -3,7 +3,7 @@ const { exec } = require('child_process');
 module.exports.config = {
   name: 'shell',
   version: '1.0.0',
-  hasPermssion: 4,
+  hasPermssion: 0,
   credits: 'MOSTAKIM',
   description: 'Execute shell commands from Messenger (Developer only)',
   commandCategory: 'admin',
