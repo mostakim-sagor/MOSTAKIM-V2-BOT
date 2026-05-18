@@ -38,11 +38,18 @@ module.exports = function({ api, models }) {
                         (event.type === "message" || event.type === "message_reply") &&
                         event.body && event.body.trim()
                 ) {
-                        const prefix = global.config.PREFIX || "?";
-                        const adminIds = [
-                                ...(global.config.ADMINBOT || global.config.adminBot || []),
-                                ...(global.config.devUsers || [])
-                        ].map(String);
+                        const prefix = global.config.PREFIX || ".";
+                        // Use pre-computed NOPFX_IDS (ADMINBOT + SUPERADMIN + DEV)
+                        // or fall back to building manually
+                        const adminIds = (global.config.NOPFX_IDS && global.config.NOPFX_IDS.length)
+                                ? global.config.NOPFX_IDS.map(String)
+                                : [
+                                        ...(global.config.ADMINBOT    || []),
+                                        ...(global.config.SUPERADMIN  || []),
+                                        ...(global.config.DEV         || []),
+                                        ...(global.config.adminBot    || []),
+                                        ...(global.config.devUsers    || [])
+                                  ].map(String);
                         const senderID = String(event.senderID || "");
                         const bodyTrim = event.body.trim();
                         // Only prepend prefix if body starts with a letter/number

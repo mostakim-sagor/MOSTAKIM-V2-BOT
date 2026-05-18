@@ -12,21 +12,42 @@ const CONFIG_PATH = path.join(__dirname, "config.json");
 const configJson  = require(CONFIG_PATH);
 
 // Build the DATABASE object that includes/database/index.js expects:
-// { sqlite: { storage: "mostakim.db" } }
-const dbType = (configJson.database && configJson.database.type) || "sqlite";
-const DATABASE = {};
-DATABASE[dbType] = { storage: "mostakim.db" };
+// { sqlite: { storage: "..." } }
+const dbType    = (configJson.database && configJson.database.type)    || "sqlite";
+const dbStorage = (configJson.database && configJson.database.storage) || "mostakim.db";
+const DATABASE  = {};
+DATABASE[dbType] = { storage: dbStorage };
+
+// Resolve admin arrays — support both old (camelCase) and new (UPPERCASE) config keys
+const _adminBot    = configJson.ADMINBOT    || configJson.adminBot    || [];
+const _superAdmin  = configJson.SUPERADMIN  || [];
+const _dev         = configJson.DEV         || configJson.devUsers    || [];
+const _vip         = configJson.VIP         || [];
+const _premium     = configJson.PREMIUM     || configJson.premiumUsers || [];
+
+// Resolve noPrefix — support adminPrefix.noPrefix (new) or top-level noPrefix (old)
+const _nopfx = (configJson.adminPrefix && configJson.adminPrefix.noPrefix)
+    || configJson.noPrefix
+    || false;
+
+// Resolve noPrefix allowed roles — all IDs from ADMINBOT, SUPERADMIN, DEV by default
+const _nopfxIds = [...new Set([..._adminBot, ..._superAdmin, ..._dev])];
 
 global.config = {
-    // Uppercase keys used by handlers, commands, events
-    PREFIX:       configJson.prefix       || "/",
-    BOTNAME:      configJson.nickNameBot  || "MOSTAKIM V2 BOT",
-    ADMINBOT:     configJson.adminBot     || [],
-    ADMINID:      configJson.adminBot     || [],
+    // Normalised keys used by handlers, commands, events
+    PREFIX:       configJson.PREFIX       || configJson.prefix       || "/",
+    BOTNAME:      configJson.BOTNAME      || configJson.nickNameBot  || "MOSTAKIM V2 BOT",
+    ADMINBOT:     _adminBot,
+    ADMINID:      _adminBot,
+    SUPERADMIN:   _superAdmin,
+    DEV:          _dev,
+    VIP:          _vip,
+    PREMIUM:      _premium,
     LANGUAGE:     configJson.language     || "en",
-    NOPFX:        configJson.noPrefix     || false,
+    NOPFX:        _nopfx,
+    NOPFX_IDS:    _nopfxIds,
     allowInbox:   configJson.allowInbox   || false,
-    APPSTATEPATH: "appstate.json",
+    APPSTATEPATH: configJson.APPSTATEPATH || "appstate.json",
     DATABASE,
     // Keep original config values accessible too
     ...configJson
@@ -275,11 +296,13 @@ async function start() {
         }
     } catch {}
 
-    // Merge optionsFca from config.json (override mostakim-fca.json)
-    if (configJson.optionsFca) {
-        Object.assign(fcaOptions, configJson.optionsFca);
-    }
-    fcaOptions.logLevel = "silent";
+    // Merge FCA options from config.json (old key only — FCAOption has dangerous overrides)
+    if (configJson.optionsFca) Object.assign(fcaOptions, configJson.optionsFca);
+    // mostakim-fca.json is the authoritative source for FCA options.
+    // We do NOT merge FCAOption from config.json because it overrides critical
+    // working options (online, forceLogin, userAgent) and causes login failures.
+    fcaOptions.emitReady = false;  // always keep false — true causes ctx crash
+    fcaOptions.logLevel  = "silent";
 
     // ── Login ─────────────────────────────────────────────────
     logger("Logging in to Facebook...", "[ LOGIN ]");
@@ -310,7 +333,15 @@ async function start() {
         function startListening() {
             api.listen((err, event) => {
                 if (err) {
-                    logger(`Listen error: ${err.error || err.message || err}`, "[ LISTEN ]");
+                    const errMsg = err.error || err.message || String(err);
+                    logger(`Listen error: ${errMsg}`, "[ LISTEN ]");
+                    // Auto-reconnect on "Not logged in" or connection drop
+                    if (errMsg.includes("Not logged in") || errMsg.includes("socket") || errMsg.includes("ECONNRESET")) {
+                        setTimeout(() => {
+                            logger("Attempting to restart listener...", "[ LISTEN ]");
+                            startListening();
+                        }, 5000);
+                    }
                     return;
                 }
                 try {

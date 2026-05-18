@@ -47,9 +47,9 @@ module.exports.run = async function({ api, event, Users, Threads }) {
 ║   👋  𝐆𝐎𝐎𝐃𝐁𝐘𝐄 𝐌𝐄𝐒𝐒𝐀𝐆𝐄   ║
 ╚══════════════════════╝
 
-{name} was
+{name} 
 
-{type} from the group ...
+{type} 
 
 ━━━━━━━━━━━━━━━━━━━━━━━
 ✦─── 𝐌𝐎𝐒𝐓𝐀𝐊𝐈𝐌 𝐕𝟐 𝐁𝐎𝐓 ───✦

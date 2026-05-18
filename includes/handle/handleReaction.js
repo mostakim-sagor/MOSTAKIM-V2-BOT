@@ -55,7 +55,12 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
                 adminIDs = (threadInfo.adminIDs || []).map(i => String(i.id));
             } catch (e) {}
 
-            const adminBot = (global.config.ADMINBOT || global.config.adminBot || []).map(String);
+            // Collect all privileged IDs: ADMINBOT + SUPERADMIN + DEV
+            const adminBot = [
+                ...(global.config.ADMINBOT   || global.config.adminBot  || []),
+                ...(global.config.SUPERADMIN || []),
+                ...(global.config.DEV        || global.config.devUsers  || [])
+            ].map(String);
             const isGroupAdmin = adminIDs.includes(reactorID);
             const isBotAdmin   = adminBot.includes(reactorID);
             const isAdmin = isGroupAdmin || isBotAdmin;
