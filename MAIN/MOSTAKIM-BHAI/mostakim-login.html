@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Login — MOSTAKIM V2 Panel</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d1a;--surface:#12122a;--card:#181834;--border:#2a2a5a;
+  --accent:#6c63ff;--accent2:#ff6584;--green:#00d68f;--red:#ff3860;
+  --text:#e8e8ff;--muted:#8888bb;
+}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-x:hidden;padding:20px 0}
+
+.blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.12;pointer-events:none;z-index:0}
+.blob1{width:400px;height:400px;background:var(--accent);top:-100px;left:-100px;animation:float 8s ease-in-out infinite}
+.blob2{width:300px;height:300px;background:var(--accent2);bottom:-80px;right:-80px;animation:float 10s ease-in-out infinite reverse}
+.blob3{width:200px;height:200px;background:var(--green);bottom:30%;left:10%;animation:float 12s ease-in-out infinite 3s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(20px,-20px) scale(1.05)}}
+
+.card{position:relative;z-index:1;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:420px;max-width:95vw;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+
+.logo-wrap{text-align:center;margin-bottom:28px}
+.logo-avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);box-shadow:0 0 0 6px rgba(108,99,255,.15),0 8px 24px rgba(0,0,0,.4);margin-bottom:10px;animation:bounce 3s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.logo-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.5px}
+.logo-sub{font-size:12px;color:var(--muted);margin-top:3px}
+
+.tabs{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:20px}
+.tab{flex:1;text-align:center;padding:8px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:.2s}
+.tab.active{background:var(--accent);color:#fff}
+
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.input-wrap{position:relative}
+.input-wrap .icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+.input-wrap input{width:100%;padding:11px 14px 11px 40px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:.2s}
+.input-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.15)}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px}
+
+.login-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#8a84ff);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;font-family:inherit;letter-spacing:.3px;position:relative;overflow:hidden}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,99,255,.4)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:8px;animation:fadein .3s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.alert-danger{background:rgba(255,56,96,.12);border:1px solid rgba(255,56,96,.3);color:var(--red)}
+.alert-success{background:rgba(0,214,143,.12);border:1px solid rgba(0,214,143,.3);color:var(--green)}
+
+.card-footer{text-align:center;margin-top:16px;font-size:11px;color:var(--muted)}
+
+.spin{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.hint{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--muted);margin-top:10px}
+.hint strong{color:var(--accent)}
+
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<div class="card">
+  <div class="logo-wrap">
+    <img class="logo-avatar" src="https://i.imgur.com/JwhJWDg.png" alt="MD Mostakim Islam Sagor"/>
+    <div class="logo-title">MOSTAKIM V2 BOT</div>
+    <div class="logo-sub">Secure Admin & User Panel</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="setRole('admin')" id="tab-admin">🔐 Admin</div>
+    <div class="tab" onclick="setRole('user')" id="tab-user">👤 User</div>
+  </div>
+
+  <div id="alert-box"></div>
+
+  <div class="form-row">
+    <label>Username</label>
+    <div class="input-wrap">
+      <span class="icon">👤</span>
+      <input type="text" id="username" placeholder="Enter username" autocomplete="username"/>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label>Password</label>
+    <div class="input-wrap">
+      <span class="icon">🔑</span>
+      <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <button class="eye-btn" onclick="togglePw('password','eye-btn')" id="eye-btn">👁️</button>
+    </div>
+  </div>
+
+  <button class="login-btn" id="login-btn" onclick="doLogin()">Login</button>
+
+  <div class="hint" id="role-hint">
+    <strong>Admin:</strong> Full access — cookie update, config, commands, logs<br/>
+    <strong>User:</strong> View command list only
+  </div>
+
+  <div class="card-footer">© 2026 MOSTAKIM V2 BOT — Secure Panel</div>
+</div>
+
+<script>
+let currentRole = 'admin';
+
+function setRole(role) {
+  currentRole = role;
+  document.getElementById('tab-admin').classList.toggle('active', role==='admin');
+  document.getElementById('tab-user').classList.toggle('active', role==='user');
+  document.getElementById('username').value = role;
+  document.getElementById('password').value = '';
+  document.getElementById('alert-box').innerHTML = '';
+}
+
+function togglePw(inputId, btnId) {
+  const inp = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  if(inp.type==='password'){inp.type='text';btn.textContent='🙈';}
+  else{inp.type='password';btn.textContent='👁️';}
+}
+
+function showAlert(msg, type='danger') {
+  document.getElementById('alert-box').innerHTML=`<div class="alert alert-${type}">${msg}</div>`;
+}
+
+async function doLogin() {
+  const btn = document.getElementById('login-btn');
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  if(!username||!password){showAlert('❌ Please fill in all fields');return;}
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span>Logging in...';
+  try{
+    const r = await fetch('/panel/login',{
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({username,password})
+    });
+    const data = await r.json();
+    if(!r.ok||data.error){showAlert('❌ '+(data.error||'Login failed'));btn.disabled=false;btn.innerHTML='Login';return;}
+    showAlert('✅ Login successful! Redirecting...','success');
+    setTimeout(()=>{
+      if(data.role==='admin') location.href='/panel/admin';
+      else location.href='/panel/user';
+    },800);
+  }catch(e){
+    showAlert('❌ Network error. Please try again.');
+    btn.disabled=false;btn.innerHTML='Login';
+  }
+}
+
+
+document.getElementById('username').value='admin';
+</script>
+</body>
+</html>

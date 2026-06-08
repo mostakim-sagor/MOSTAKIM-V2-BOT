@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin Panel — MOSTAKIM V2</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d1a;--surface:#12122a;--card:#181834;--border:#2a2a5a;
+  --accent:#6c63ff;--accent2:#ff6584;--green:#00d68f;--red:#ff3860;
+  --yellow:#ffdd57;--text:#e8e8ff;--muted:#8888bb;--font:'Segoe UI',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+input,textarea,select{font-family:inherit;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px 14px;width:100%;outline:none;transition:.2s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.15)}
+textarea{resize:vertical}
+
+/* SIDEBAR */
+.sidebar{width:240px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100;transition:.3s}
+.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo .bot-name{font-size:15px;font-weight:700;color:var(--accent);letter-spacing:.5px}
+.sidebar-logo .bot-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.sidebar-user{padding:14px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.sidebar-user .avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.sidebar-user .info{flex:1}
+.sidebar-user .info .name{font-size:13px;font-weight:600}
+.sidebar-user .info .role{font-size:11px;color:var(--accent);background:rgba(108,99,255,.15);padding:1px 7px;border-radius:20px;display:inline-block;margin-top:2px}
+nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-group{padding:8px 20px 4px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;border-left:3px solid transparent;transition:.2s;font-size:13px;color:var(--muted)}
+.nav-item:hover{background:rgba(108,99,255,.08);color:var(--text)}
+.nav-item.active{border-left-color:var(--accent);color:var(--text);background:rgba(108,99,255,.12)}
+.nav-item .icon{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--border)}
+.logout-btn{width:100%;padding:9px;background:rgba(255,56,96,.1);color:var(--red);border:1px solid rgba(255,56,96,.3);border-radius:8px;font-size:13px;font-weight:600;transition:.2s}
+.logout-btn:hover{background:var(--red);color:#fff}
+
+/* MAIN */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:50}
+.topbar h2{font-size:16px;font-weight:700;flex:1}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.content{padding:28px;flex:1}
+
+/* SECTIONS */
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;background:linear-gradient(135deg,var(--accent),transparent);opacity:.1;border-radius:0 12px 0 60px}
+.stat-card .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-card .value{font-size:26px;font-weight:700;color:var(--text)}
+.stat-card .icon{font-size:24px;position:absolute;top:16px;right:16px;opacity:.5}
+
+/* TABLE */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.table-title{font-size:14px;font-weight:700}
+.search-box{position:relative}
+.search-box input{padding:8px 14px 8px 36px;width:220px}
+.search-box::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px}
+table{width:100%;border-collapse:collapse}
+th{background:var(--surface);padding:10px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:10px 16px;border-bottom:1px solid rgba(42,42,90,.5);font-size:13px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(108,99,255,.04)}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-admin{background:rgba(108,99,255,.2);color:var(--accent)}
+.badge-fun{background:rgba(255,101,132,.2);color:var(--accent2)}
+.badge-info{background:rgba(0,214,143,.2);color:var(--green)}
+.badge-group{background:rgba(255,221,87,.2);color:var(--yellow)}
+.badge-media{background:rgba(108,199,255,.2);color:#6cc7ff}
+.badge-tool{background:rgba(200,200,255,.2);color:#c8c8ff}
+.badge-default{background:rgba(136,136,187,.2);color:var(--muted)}
+.badge-online{background:rgba(0,214,143,.15);color:var(--green)}
+.badge-offline{background:rgba(255,56,96,.15);color:var(--red)}
+
+/* FORM SECTIONS */
+.form-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.form-section h3{font-size:14px;font-weight:700;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.form-row{margin-bottom:14px}
+.form-row label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;border:none;transition:.2s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#5a52e0;transform:translateY(-1px)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#e0003a;transform:translateY(-1px)}
+.btn-warning{background:var(--yellow);color:#333}
+.btn-warning:hover{background:#e8c800;transform:translateY(-1px)}
+.btn-success{background:var(--green);color:#003d2a}
+.btn-success:hover{background:#00b87a;transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--accent)}
+.btn-sm{padding:5px 12px;font-size:11px}
+
+/* ALERTS */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.alert-success{background:rgba(0,214,143,.12);border:1px solid rgba(0,214,143,.3);color:var(--green)}
+.alert-danger{background:rgba(255,56,96,.12);border:1px solid rgba(255,56,96,.3);color:var(--red)}
+.alert-info{background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.3);color:var(--accent)}
+
+/* COOKIE SECTION */
+.cookie-info{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.info-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.info-box .label{font-size:11px;color:var(--muted);margin-bottom:6px}
+.info-box .val{font-size:18px;font-weight:700}
+
+/* LOG BOX */
+.log-box{background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:16px;height:320px;overflow-y:auto;font-family:'Courier New',monospace;font-size:12px;line-height:1.6}
+.log-line{padding:2px 0;color:#8888bb}
+.log-line.err{color:#ff6666}
+.log-line.warn{color:#ffdd57}
+.log-line.ok{color:#00d68f}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted)}
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-right:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px;width:480px;max-width:95vw}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:18px}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+
+/* HAMBURGER */
+.hamburger-btn{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1}
+.hamburger-btn:hover{background:rgba(108,99,255,.15)}
+
+/* OVERLAY */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:90;backdrop-filter:blur(2px)}
+.sidebar-overlay.open{display:block}
+
+/* MOBILE */
+@media(max-width:768px){
+  .hamburger-btn{display:flex;align-items:center;justify-content:center}
+  .sidebar{width:260px;transform:translateX(-100%);z-index:100;box-shadow:4px 0 24px rgba(0,0,0,.5)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:0 14px;gap:10px}
+  .topbar h2{font-size:14px}
+  .content{padding:14px}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .stat-card{padding:14px}
+  .stat-card .value{font-size:20px}
+  .form-row-2{grid-template-columns:1fr}
+  .cookie-info{grid-template-columns:1fr}
+  .search-box input{width:150px}
+  .table-wrap{overflow-x:auto}
+  table{min-width:500px}
+  .log-box{height:240px;font-size:11px}
+  .modal{width:95vw;padding:20px}
+  .tabs{flex-wrap:wrap;width:100%}
+  .tab{flex:1;text-align:center;padding:6px 10px;font-size:12px;min-width:60px}
+  .form-section{padding:16px}
+  .btn{padding:8px 14px;font-size:12px}
+  .nav-item{padding:10px 16px;font-size:13px}
+  .sidebar-logo{padding:18px 16px 12px}
+}
+
+/* SCROLL */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content}
+.tab{padding:7px 18px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);transition:.2s}
+.tab.active{background:var(--accent);color:#fff}
+
+/* PAGINATION */
+.pagination{display:flex;gap:6px;padding:14px 16px;justify-content:center}
+.page-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:.2s}
+.page-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.page-btn:hover:not(.active){border-color:var(--accent);color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="bot-name">⚡ MOSTAKIM V2 BOT</div>
+    <div class="bot-sub">Admin Control Panel</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="avatar">A</div>
+    <div class="info">
+      <div class="name" id="sb-username">Admin</div>
+      <div class="role">ADMINISTRATOR</div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-group">Dashboard</div>
+    <div class="nav-item active" onclick="showSection('dashboard')"><span class="icon">🏠</span> Overview</div>
+    <div class="nav-item" onclick="showSection('logs')"><span class="icon">📋</span> Live Logs</div>
+
+    <div class="nav-group">Bot Control</div>
+    <div class="nav-item" onclick="showSection('cookie')"><span class="icon">🍪</span> Cookie Update</div>
+    <div class="nav-item" onclick="showSection('config')"><span class="icon">⚙️</span> Bot Config</div>
+    <div class="nav-item" onclick="showSection('admins')"><span class="icon">👑</span> Manage Admins</div>
+    <div class="nav-item" onclick="showSection('restart')"><span class="icon">🔄</span> Restart Bot</div>
+
+    <div class="nav-group">Data</div>
+    <div class="nav-item" onclick="showSection('commands')"><span class="icon">📦</span> Commands</div>
+    <div class="nav-item" onclick="showSection('banned')"><span class="icon">🚫</span> Banned List</div>
+    <div class="nav-item" onclick="showSection('threads')"><span class="icon">💬</span> Thread List</div>
+
+    <div class="nav-group">Security</div>
+    <div class="nav-item" onclick="showSection('password')"><span class="icon">🔑</span> Change Password</div>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="doLogout()">🚪 Logout</button>
+  </div>
+</aside>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <button class="hamburger-btn" id="hamburger-btn" onclick="toggleSidebar()" title="Menu">☰</button>
+    <h2 id="page-title">Overview</h2>
+    <span class="status-dot"></span>
+    <span style="font-size:12px;color:var(--green)" id="topbar-status">Bot Online</span>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <div class="stats-grid" id="stats-grid">
+        <div class="loading"><div class="spinner"></div>Loading...</div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">📊 Quick Info</div></div>
+        <table>
+          <tbody id="quick-info-body">
+            <tr><td colspan="2"><div class="loading"><div class="spinner"></div>Loading...</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LIVE LOGS -->
+    <div class="section" id="sec-logs">
+      <div class="form-section">
+        <h3>📋 Live Bot Logs <button class="btn btn-ghost btn-sm" onclick="loadLogs()" style="margin-left:10px">🔄 Refresh</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleAutoRefresh()" id="auto-btn" style="margin-left:6px">▶ Auto Refresh</button>
+        </h3>
+        <div class="log-box" id="log-box"><div class="loading"><div class="spinner"></div>Loading logs...</div></div>
+      </div>
+    </div>
+
+    <!-- COOKIE UPDATE -->
+    <div class="section" id="sec-cookie">
+      <div class="form-section">
+        <h3>🍪 Appstate / Cookie Update</h3>
+        <div class="cookie-info" id="cookie-info">
+          <div class="info-box"><div class="label">Current Cookie Count</div><div class="val" id="cookie-count">—</div></div>
+          <div class="info-box"><div class="label">Appstate Status</div><div class="val" id="cookie-status">Checking...</div></div>
+        </div>
+        <div id="cookie-alert"></div>
+        <div class="form-row">
+          <label>Paste New Appstate JSON (Full Cookie Array)</label>
+          <textarea id="cookie-input" rows="10" placeholder='[{"key":"sb","value":"...","domain":"facebook.com",...}, ...]'></textarea>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="updateCookie()">💾 Update Cookie</button>
+          <button class="btn btn-ghost" onclick="loadCookieInfo()">🔄 Refresh Info</button>
+        </div>
+        <div class="alert alert-info" style="margin-top:14px">
+          ℹ️ After updating cookie, restart the bot for changes to take effect.
+        </div>
+      </div>
+    </div>
+
+    <!-- BOT CONFIG -->
+    <div class="section" id="sec-config">
+      <div class="form-section">
+        <h3>⚙️ Bot Configuration</h3>
+        <div id="config-alert"></div>
+        <div class="form-row-2">
+          <div class="form-row"><label>Bot Name</label><input id="cfg-botname" type="text" placeholder="MOSTAKIM V2 BOT"/></div>
+          <div class="form-row"><label>Prefix</label><input id="cfg-prefix" type="text" placeholder="/"/></div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row"><label>Language</label><select id="cfg-lang"><option value="en">English</option><option value="vi">Vietnamese</option></select></div>
+          <div class="form-row"><label>Time Zone</label><input id="cfg-tz" type="text" placeholder="Asia/Dhaka"/></div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row"><label>Admin Only Mode</label><select id="cfg-adminonly"><option value="false">Disabled</option><option value="true">Enabled</option></select></div>
+          <div class="form-row"><label>Allow Inbox</label><select id="cfg-inbox"><option value="true">Enabled</option><option value="false">Disabled</option></select></div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row"><label>Auto Clean</label><select id="cfg-autoclean"><option value="true">Enabled</option><option value="false">Disabled</option></select></div>
+          <div class="form-row"><label>Notification</label><select id="cfg-noti"><option value="true">Enabled</option><option value="false">Disabled</option></select></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveConfig()">💾 Save Config</button>
+        <div class="alert alert-info" style="margin-top:14px">ℹ️ Restart bot after saving config for all changes to apply.</div>
+      </div>
+    </div>
+
+    <!-- MANAGE ADMINS -->
+    <div class="section" id="sec-admins">
+      <div class="form-section">
+        <h3>👑 Manage Bot Admins</h3>
+        <div id="admins-alert"></div>
+        <div class="tabs">
+          <div class="tab active" onclick="switchAdminTab('adminbot')">Admin Bot</div>
+          <div class="tab" onclick="switchAdminTab('superadmin')">Super Admin</div>
+          <div class="tab" onclick="switchAdminTab('dev')">Developer</div>
+          <div class="tab" onclick="switchAdminTab('premium')">Premium</div>
+          <div class="tab" onclick="switchAdminTab('vip')">VIP</div>
+        </div>
+        <div class="form-row-2" style="margin-bottom:14px">
+          <div class="form-row"><label>Facebook UID</label><input id="admin-uid" type="text" placeholder="Enter Facebook UID"/></div>
+          <div class="form-row" style="display:flex;align-items:flex-end;gap:8px">
+            <button class="btn btn-success" onclick="manageAdmin('add')" style="flex:1">➕ Add</button>
+            <button class="btn btn-danger" onclick="manageAdmin('remove')" style="flex:1">➖ Remove</button>
+          </div>
+        </div>
+        <div id="admin-list-wrap">
+          <div class="loading"><div class="spinner"></div>Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESTART -->
+    <div class="section" id="sec-restart">
+      <div class="form-section" style="text-align:center;padding:48px">
+        <div style="font-size:60px;margin-bottom:16px">🔄</div>
+        <h3 style="border:none;font-size:20px;margin-bottom:10px">Restart Bot</h3>
+        <p style="color:var(--muted);margin-bottom:24px">This will restart the bot process. It will reconnect to Facebook automatically.</p>
+        <button class="btn btn-danger" onclick="confirmRestart()" style="font-size:15px;padding:12px 36px">⚡ Restart Now</button>
+      </div>
+    </div>
+
+    <!-- COMMANDS -->
+    <div class="section" id="sec-commands">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">📦 All Commands (<span id="cmd-count">0</span>)</div>
+          <div class="search-box"><input type="text" id="cmd-search" placeholder="Search commands..." oninput="filterCommands()"/></div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>#</th><th>Name</th><th>Category</th><th>Description</th><th>Permission</th><th>Cooldown</th><th>Credits</th></tr></thead>
+            <tbody id="cmd-tbody"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="cmd-pages"></div>
+      </div>
+    </div>
+
+    <!-- BANNED -->
+    <div class="section" id="sec-banned">
+      <div class="tabs">
+        <div class="tab active" onclick="switchBanTab('user')">Banned Users</div>
+        <div class="tab" onclick="switchBanTab('thread')">Banned Threads</div>
+        <div class="tab" onclick="switchBanTab('cmd')">Banned Commands</div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title" id="ban-table-title">Banned Users</div></div>
+        <table>
+          <thead><tr><th>ID</th><th>Reason</th><th>Action</th></tr></thead>
+          <tbody id="ban-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- THREADS -->
+    <div class="section" id="sec-threads">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">💬 Active Threads (<span id="thread-count">0</span>)</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadThreads()">🔄 Refresh</button>
+        </div>
+        <table>
+          <thead><tr><th>#</th><th>Thread ID</th><th>Name</th><th>Members</th></tr></thead>
+          <tbody id="thread-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CHANGE PASSWORD -->
+    <div class="section" id="sec-password">
+      <div class="form-section" style="max-width:480px">
+        <h3>🔑 Change Panel Password</h3>
+        <div id="pw-alert"></div>
+        <div class="form-row">
+          <label>Target Account</label>
+          <select id="pw-user">
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>New Password (min 6 chars)</label>
+          <input id="pw-new" type="password" placeholder="New password"/>
+        </div>
+        <div class="form-row">
+          <label>Confirm Password</label>
+          <input id="pw-confirm" type="password" placeholder="Confirm password"/>
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">💾 Update Password</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- RESTART MODAL -->
+<div class="modal-overlay" id="restart-modal">
+  <div class="modal">
+    <h3>⚠️ Confirm Restart</h3>
+    <p style="color:var(--muted);font-size:13px">Are you sure you want to restart the bot? The bot will be offline for a few seconds.</p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="doRestart()">🔄 Yes, Restart</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let allCommands = [], filteredCmds = [], currentPage = 1, pageSize = 20;
+let currentAdminTab = 'adminbot', currentBanTab = 'user';
+let autoRefresh = null;
+
+// ── Sidebar mobile toggle ─────────────────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sidebar-overlay');
+  const isOpen = sb.classList.contains('open');
+  if (isOpen) { sb.classList.remove('open'); ov.classList.remove('open'); }
+  else         { sb.classList.add('open');    ov.classList.add('open'); }
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+async function api(url, opts = {}) {
+  const r = await fetch(url, { credentials: 'include', headers: { 'Content-Type': 'application/json' }, ...opts });
+  if (r.status === 401) { location.href = '/panel/login'; return null; }
+  return r.json();
+}
+
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  const titles = { dashboard:'Overview', logs:'Live Logs', cookie:'Cookie Update', config:'Bot Config', admins:'Manage Admins', restart:'Restart Bot', commands:'Commands', banned:'Banned List', threads:'Thread List', password:'Change Password' };
+  document.getElementById('page-title').textContent = titles[name] || name;
+  document.querySelectorAll('.nav-item').forEach(n => { if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + name + "'")) n.classList.add('active'); });
+  if (name === 'dashboard') loadDashboard();
+  else if (name === 'commands') loadCommands();
+  else if (name === 'banned') loadBanned();
+  else if (name === 'threads') loadThreads();
+  else if (name === 'cookie') loadCookieInfo();
+  else if (name === 'config') loadConfig();
+  else if (name === 'admins') loadAdmins();
+  else if (name === 'logs') loadLogs();
+  if (name !== 'logs' && autoRefresh) { clearInterval(autoRefresh); autoRefresh = null; document.getElementById('auto-btn').textContent = '▶ Auto Refresh'; }
+  // close sidebar on mobile after nav
+  if (window.innerWidth <= 768) closeSidebar();
+}
+
+async function loadDashboard() {
+  const data = await api('/panel/api/stats');
+  if (!data) return;
+  const grid = document.getElementById('stats-grid');
+  grid.innerHTML = `
+    <div class="stat-card"><div class="label">Bot Status</div><div class="value" style="font-size:18px"><span class="badge ${data.botStatus.includes('Online') ? 'badge-online' : 'badge-offline'}">${data.botStatus}</span></div><div class="icon">🤖</div></div>
+    <div class="stat-card"><div class="label">Commands</div><div class="value">${data.commandCount}</div><div class="icon">📦</div></div>
+    <div class="stat-card"><div class="label">Events</div><div class="value">${data.eventCount}</div><div class="icon">⚡</div></div>
+    <div class="stat-card"><div class="label">Threads</div><div class="value">${data.threadCount}</div><div class="icon">💬</div></div>
+    <div class="stat-card"><div class="label">Users</div><div class="value">${data.userCount}</div><div class="icon">👥</div></div>
+    <div class="stat-card"><div class="label">Memory</div><div class="value" style="font-size:18px">${data.memUsage}</div><div class="icon">💾</div></div>
+  `;
+  const tbody = document.getElementById('quick-info-body');
+  tbody.innerHTML = [
+    ['🤖 Bot Name', data.botName],['⌨️ Prefix', data.prefix],
+    ['⏱️ Uptime', data.uptime],['🌐 Platform', data.platform],
+    ['🟢 Node.js', data.nodeVersion],['🔄 Restarts', data.restartCount],
+  ].map(([k,v]) => `<tr><td style="color:var(--muted);width:180px">${k}</td><td><strong>${v}</strong></td></tr>`).join('');
+}
+
+async function loadCommands() {
+  if (allCommands.length) return renderCommands();
+  const data = await api('/panel/api/commands');
+  if (!data) return;
+  allCommands = data; filteredCmds = data;
+  document.getElementById('cmd-count').textContent = data.length;
+  renderCommands();
+}
+
+function filterCommands() {
+  const q = document.getElementById('cmd-search').value.toLowerCase();
+  filteredCmds = allCommands.filter(c => c.name.toLowerCase().includes(q) || (c.description||'').toLowerCase().includes(q) || (c.category||'').toLowerCase().includes(q));
+  currentPage = 1; renderCommands();
+}
+
+function catBadge(cat) {
+  const c = (cat||'').toLowerCase();
+  if(c.includes('admin')) return 'badge-admin';
+  if(c.includes('fun')) return 'badge-fun';
+  if(c.includes('info')) return 'badge-info';
+  if(c.includes('group')) return 'badge-group';
+  if(c.includes('media')) return 'badge-media';
+  if(c.includes('tool')) return 'badge-tool';
+  return 'badge-default';
+}
+
+function renderCommands() {
+  const start = (currentPage-1)*pageSize, end = start+pageSize;
+  const page = filteredCmds.slice(start, end);
+  const perms = ['User','Admin','Super Admin','Developer'];
+  document.getElementById('cmd-tbody').innerHTML = page.map((c,i) => `
+    <tr>
+      <td style="color:var(--muted)">${start+i+1}</td>
+      <td><strong>${c.name}</strong></td>
+      <td><span class="badge ${catBadge(c.category)}">${c.category||'—'}</span></td>
+      <td style="color:var(--muted);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.description||'—'}</td>
+      <td><span class="badge badge-default">${perms[c.permission]||'User'}</span></td>
+      <td>${c.cooldown||0}s</td>
+      <td style="color:var(--muted)">${c.credits||'—'}</td>
+    </tr>`).join('');
+  renderPages();
+}
+
+function renderPages() {
+  const total = Math.ceil(filteredCmds.length/pageSize);
+  let html = '';
+  for(let i=1;i<=total;i++) html += `<div class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</div>`;
+  document.getElementById('cmd-pages').innerHTML = html;
+}
+
+function goPage(p) { currentPage=p; renderCommands(); }
+
+async function loadCookieInfo() {
+  const data = await api('/panel/api/cookie');
+  if(!data) return;
+  if(data.error) { document.getElementById('cookie-count').textContent='Error'; document.getElementById('cookie-status').textContent='❌'; return; }
+  document.getElementById('cookie-count').textContent = data.cookieCount;
+  document.getElementById('cookie-status').textContent = data.cookieCount > 0 ? '✅ Valid' : '❌ Empty';
+}
+
+async function updateCookie() {
+  const val = document.getElementById('cookie-input').value.trim();
+  const alertEl = document.getElementById('cookie-alert');
+  if(!val) { alertEl.innerHTML='<div class="alert alert-danger">❌ Please paste the appstate JSON</div>'; return; }
+  const data = await api('/panel/api/cookie', { method:'POST', body: JSON.stringify({ appstate: val }) });
+  if(!data) return;
+  if(data.error) { alertEl.innerHTML=`<div class="alert alert-danger">❌ ${data.error}</div>`; return; }
+  alertEl.innerHTML=`<div class="alert alert-success">✅ Cookie updated! ${data.cookieCount} cookies saved. Please restart the bot.</div>`;
+  loadCookieInfo(); document.getElementById('cookie-input').value='';
+}
+
+async function loadConfig() {
+  const data = await api('/panel/api/config');
+  if(!data) return;
+  document.getElementById('cfg-botname').value = data.BOTNAME || '';
+  document.getElementById('cfg-prefix').value = data.PREFIX || '/';
+  document.getElementById('cfg-lang').value = data.language || 'en';
+  document.getElementById('cfg-tz').value = data.timeZone || 'Asia/Dhaka';
+  document.getElementById('cfg-adminonly').value = data.adminOnly ? 'true' : 'false';
+  document.getElementById('cfg-inbox').value = data.allowInbox !== false ? 'true' : 'false';
+  document.getElementById('cfg-autoclean').value = data.autoClean !== false ? 'true' : 'false';
+  document.getElementById('cfg-noti').value = data.NOTIFICATION !== false ? 'true' : 'false';
+}
+
+async function saveConfig() {
+  const payload = {
+    BOTNAME: document.getElementById('cfg-botname').value,
+    PREFIX: document.getElementById('cfg-prefix').value,
+    language: document.getElementById('cfg-lang').value,
+    timeZone: document.getElementById('cfg-tz').value,
+    adminOnly: document.getElementById('cfg-adminonly').value === 'true',
+    allowInbox: document.getElementById('cfg-inbox').value === 'true',
+    autoClean: document.getElementById('cfg-autoclean').value === 'true',
+    NOTIFICATION: document.getElementById('cfg-noti').value === 'true',
+  };
+  const data = await api('/panel/api/config', { method:'POST', body: JSON.stringify(payload) });
+  const alertEl = document.getElementById('config-alert');
+  if(!data) return;
+  if(data.error) { alertEl.innerHTML=`<div class="alert alert-danger">❌ ${data.error}</div>`; return; }
+  alertEl.innerHTML='<div class="alert alert-success">✅ Config saved! Restart bot to apply changes.</div>';
+}
+
+let adminData = {};
+async function loadAdmins() {
+  const data = await api('/panel/api/admins');
+  if(!data) return;
+  adminData = data; renderAdminList();
+}
+
+function switchAdminTab(tab) {
+  currentAdminTab = tab;
+  document.querySelectorAll('#sec-admins .tab').forEach((t,i) => {
+    const tabs = ['adminbot','superadmin','dev','premium','vip'];
+    t.classList.toggle('active', tabs[i]===tab);
+  });
+  renderAdminList();
+}
+
+function renderAdminList() {
+  const list = adminData[currentAdminTab] || [];
+  const wrap = document.getElementById('admin-list-wrap');
+  if(!list.length) { wrap.innerHTML='<div class="loading" style="padding:20px">No entries</div>'; return; }
+  wrap.innerHTML = `<table><thead><tr><th>#</th><th>UID</th><th>Action</th></tr></thead><tbody>${list.map((uid,i)=>`<tr><td style="color:var(--muted)">${i+1}</td><td><code>${uid}</code></td><td><button class="btn btn-danger btn-sm" onclick="removeAdmin('${uid}')">Remove</button></td></tr>`).join('')}</tbody></table>`;
+}
+
+async function manageAdmin(action) {
+  const uid = document.getElementById('admin-uid').value.trim();
+  if(!uid) return showAdminAlert('❌ Enter a UID first','danger');
+  const data = await api('/panel/api/admins', { method:'POST', body: JSON.stringify({ type: currentAdminTab, uid, action }) });
+  if(!data) return;
+  if(data.error) { showAdminAlert('❌ '+data.error,'danger'); return; }
+  showAdminAlert('✅ Done!','success');
+  adminData[currentAdminTab] = data.list; renderAdminList();
+  document.getElementById('admin-uid').value='';
+}
+
+async function removeAdmin(uid) {
+  const data = await api('/panel/api/admins', { method:'POST', body: JSON.stringify({ type: currentAdminTab, uid, action:'remove' }) });
+  if(data && !data.error) { adminData[currentAdminTab]=data.list; renderAdminList(); }
+}
+
+function showAdminAlert(msg, type) {
+  document.getElementById('admins-alert').innerHTML=`<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(()=>document.getElementById('admins-alert').innerHTML='',3000);
+}
+
+let currentBanData = { user:[], thread:[], cmd:[] };
+async function loadBanned() {
+  const data = await api('/panel/api/banned');
+  if(!data) return;
+  currentBanData = { user: data.userBanned||[], thread: data.threadBanned||[], cmd: data.cmdBanned||[] };
+  renderBanned();
+}
+
+function switchBanTab(tab) {
+  currentBanTab=tab;
+  document.querySelectorAll('#sec-banned .tab').forEach((t,i) => {
+    const tabs=['user','thread','cmd']; t.classList.toggle('active', tabs[i]===tab);
+  });
+  const titles={user:'Banned Users',thread:'Banned Threads',cmd:'Banned Commands'};
+  document.getElementById('ban-table-title').textContent=titles[tab];
+  renderBanned();
+}
+
+function renderBanned() {
+  const list = currentBanData[currentBanTab]||[];
+  document.getElementById('ban-tbody').innerHTML = list.length ? list.map(b=>`<tr><td><code>${b.id}</code></td><td>${b.reason||'—'}</td><td><button class="btn btn-success btn-sm" onclick="unban('${b.id}')">Unban</button></td></tr>`).join('') : '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:20px">No entries</td></tr>';
+}
+
+async function unban(id) {
+  await api('/panel/api/unban', { method:'POST', body: JSON.stringify({ type: currentBanTab, id }) });
+  await loadBanned();
+}
+
+async function loadThreads() {
+  const data = await api('/panel/api/threads');
+  if(!data) return;
+  document.getElementById('thread-count').textContent = data.total;
+  document.getElementById('thread-tbody').innerHTML = (data.threads||[]).map((t,i)=>`<tr><td style="color:var(--muted)">${i+1}</td><td><code>${t.id||'—'}</code></td><td>${t.name||'—'}</td><td>${t.count||0}</td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No threads</td></tr>';
+}
+
+async function loadLogs() {
+  const data = await api('/panel/api/logs');
+  if(!data) return;
+  const box = document.getElementById('log-box');
+  const logs = data.logs||[];
+  if(!logs.length) { box.innerHTML='<div style="color:var(--muted);padding:10px">No logs yet. Logs appear after bot activity.</div>'; return; }
+  box.innerHTML = logs.slice().reverse().map(l => {
+    const msg = typeof l === 'string' ? l : (l.msg || JSON.stringify(l));
+    const lvl = typeof l === 'object' ? (l.level||'info') : 'info';
+    const ts  = typeof l === 'object' && l.t ? new Date(l.t).toLocaleTimeString() : '';
+    let cls='log-line';
+    if(lvl==='error'||msg.includes('ERROR')||msg.includes('❌')) cls+=' err';
+    else if(lvl==='warn'||msg.includes('WARN')||msg.includes('⚠️')) cls+=' warn';
+    else if(msg.includes('✅')||msg.includes('Connected')||msg.includes('Successfully')) cls+=' ok';
+    return `<div class="${cls}"><span style="color:var(--muted);margin-right:8px;font-size:10px">${ts}</span>${escHtml(msg)}</div>`;
+  }).join('');
+  box.scrollTop = 0;
+}
+
+function toggleAutoRefresh() {
+  const btn = document.getElementById('auto-btn');
+  if(autoRefresh) { clearInterval(autoRefresh); autoRefresh=null; btn.textContent='▶ Auto Refresh'; }
+  else { loadLogs(); autoRefresh=setInterval(loadLogs, 3000); btn.textContent='⏸ Stop'; }
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function confirmRestart() { document.getElementById('restart-modal').classList.add('open'); }
+function closeModal() { document.getElementById('restart-modal').classList.remove('open'); }
+
+async function doRestart() {
+  closeModal();
+  await api('/panel/api/restart', { method:'POST' });
+  document.getElementById('sec-restart').innerHTML = '<div class="form-section" style="text-align:center;padding:48px"><div style="font-size:60px">⏳</div><h3 style="border:none;margin-top:14px">Bot is restarting...</h3><p style="color:var(--muted);margin-top:10px">Please wait a few seconds</p></div>';
+}
+
+async function changePassword() {
+  const target = document.getElementById('pw-user').value;
+  const np = document.getElementById('pw-new').value;
+  const cp = document.getElementById('pw-confirm').value;
+  const alertEl = document.getElementById('pw-alert');
+  if(np !== cp) { alertEl.innerHTML='<div class="alert alert-danger">❌ Passwords do not match</div>'; return; }
+  if(np.length < 6) { alertEl.innerHTML='<div class="alert alert-danger">❌ Password too short (min 6)</div>'; return; }
+  const data = await api('/panel/api/change-password', { method:'POST', body: JSON.stringify({ targetUser: target, newPassword: np }) });
+  if(!data) return;
+  if(data.error) { alertEl.innerHTML=`<div class="alert alert-danger">❌ ${data.error}</div>`; return; }
+  alertEl.innerHTML='<div class="alert alert-success">✅ Password changed!</div>';
+  document.getElementById('pw-new').value=''; document.getElementById('pw-confirm').value='';
+}
+
+async function doLogout() {
+  await api('/panel/logout', { method:'POST' });
+  location.href = '/panel/login';
+}
+
+async function init() {
+  const me = await api('/panel/me');
+  if(me && me.username) document.getElementById('sb-username').textContent = me.username;
+  loadDashboard();
+}
+
+init();
+</script>
+</body>
+</html>
